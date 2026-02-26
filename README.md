@@ -1,6 +1,6 @@
 # Claude Code Custom Skills
 
-A production-grade collection of custom [Claude Code](https://claude.ai/claude-code) skills for content creation, AI development, security auditing, and community management.
+A production-grade collection of 12 custom [Claude Code](https://claude.ai/claude-code) skills for content creation, AI development, security auditing, defensive research, and community management.
 
 These skills use advanced Claude Code features including `context: fork` for isolated execution, `allowed-tools` for precise tool access, dynamic context injection (`!`command``), skill chaining, and structured output templates.
 
@@ -35,6 +35,8 @@ git clone https://github.com/andre-zilla/claude-skills.git ~/.claude/skills
 | [`/secure-review`](#secure-review) | Security | Forked context, 3-layer audit, Ghost + manual, confidence levels |
 | [`/stack-check`](#stack-check) | Security | Forked context, health score, license audit, exact upgrade commands |
 | [`/community-manager`](#community-manager) | Community | 7 focus areas, competitor intel, templates, metrics dashboards |
+| [`/defense-analyst`](#defense-analyst) | Security | macOS binary analysis, CVSS scoring, defensive tools, vuln reports |
+| [`/red-team-scaffold`](#red-team-scaffold) | Security | GenAI red team infra — exfil server, vulnerable MCP, sandbox |
 
 ---
 
@@ -44,9 +46,9 @@ These skills leverage Claude Code's full capabilities:
 
 | Feature | Skills Using It | Purpose |
 |---|---|---|
-| `context: fork` | secure-review, stack-check, tool-review | Runs in isolated subagent — verbose output stays out of main context |
+| `context: fork` | secure-review, stack-check, tool-review, defense-analyst | Runs in isolated subagent — verbose output stays out of main context |
 | `allowed-tools` | ALL | Declares exactly which tools each skill needs |
-| `disable-model-invocation` | app-scaffold, secure-review | Prevents auto-triggering on side-effect-heavy skills |
+| `disable-model-invocation` | app-scaffold, secure-review, defense-analyst, red-team-scaffold | Prevents auto-triggering on side-effect-heavy skills |
 | Dynamic context `!`cmd`` | content-plan, app-scaffold, secure-review, stack-check, seo-optimize | Pre-fetches project data before Claude starts processing |
 | Skill chaining | ALL | Every skill suggests next skills to run in a pipeline |
 | Structured output | ALL | Consistent templates with tables, code blocks, and checklists |
@@ -255,6 +257,63 @@ Audits every dependency with a health score. Runs in forked context.
 
 ---
 
+### `/defense-analyst`
+
+Defensive security research analyst for macOS binary analysis. Runs in forked context. Manual-invoke only.
+
+```
+/defense-analyst Analyze this disassembly for integer overflow patterns
+/defense-analyst Generate CVSS score for the library injection vulnerability
+/defense-analyst Create a monitoring script to detect DYLD injection attempts
+/defense-analyst Write a responsible disclosure report for these findings
+/defense-analyst Organize all IPC-related vulnerabilities into an index
+```
+
+**Capabilities:**
+- macOS binary analysis (ARM64/x86_64, Mach-O, code signatures, entitlements)
+- Vulnerability assessment with CVSS scoring (full vector breakdowns)
+- Defensive monitoring tool development (Python/Bash — detection only, never exploitation)
+- Responsible disclosure report generation
+- Research organization across 30+ analysis files
+- Chromium-based app security (multi-process architecture, IPC, sandbox)
+
+**Output templates:** Vulnerability reports with executive summary + technical details + PoC detection + impact + remediation. Defensive tool templates with mandatory safety headers and ethical guardrails. Research index with attack chain maps and evidence catalogs.
+
+**Strict ethical boundaries:** Defensive only. Creates detection tools, never exploitation tools. Refuses any request that crosses into offensive tooling.
+
+---
+
+### `/red-team-scaffold`
+
+Scaffolds GenAI red team testing infrastructure. Manual-invoke only.
+
+```
+/red-team-scaffold exfil-server
+/red-team-scaffold mcp-vuln
+/red-team-scaffold sandbox
+/red-team-scaffold full
+```
+
+**Three components:**
+
+| Component | What It Builds |
+|---|---|
+| `exfil-server` | Multi-protocol exfiltration detection server (HTTP, DNS, WebSocket, SMTP) with PostgreSQL logging, Prometheus metrics, and rate limiting |
+| `mcp-vuln` | 4 intentionally vulnerable MCP servers (filesystem, database, web/SSRF, API gateway) for testing LLM agent security boundaries |
+| `sandbox` | Containerized code execution environment with network/filesystem/syscall monitoring and threat classification |
+
+**Safety features in every component:**
+- Docker isolation (no host network access)
+- All test data is fake (no real credentials)
+- Production environment auto-detection and shutdown
+- Prominent defensive research warnings in all code and UI
+- Complete audit logging of all activity
+- Vulnerability toggles via environment variables
+
+**Tech stack:** TypeScript, Node.js, Docker, PostgreSQL, Prisma, @modelcontextprotocol/sdk, seccomp-bpf.
+
+---
+
 ## Community Management
 
 ### `/community-manager`
@@ -319,6 +378,19 @@ For community management:
 /script-writer          → Script event promos and recaps
     ↓
 /social-repurpose       → Distribute across platforms
+```
+
+For defensive security research:
+```
+/red-team-scaffold      → Build testing infrastructure
+    ↓
+/defense-analyst        → Analyze binaries and findings
+    ↓
+/secure-review          → Audit the tools themselves
+    ↓
+/stack-check            → Verify all dependency versions
+    ↓
+/script-writer          → Create content about the research
 ```
 
 ---
