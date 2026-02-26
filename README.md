@@ -1,8 +1,8 @@
 # Claude Code Custom Skills
 
-A collection of custom [Claude Code](https://claude.ai/claude-code) skills for content creation, AI development, security auditing, and community management.
+A production-grade collection of custom [Claude Code](https://claude.ai/claude-code) skills for content creation, AI development, security auditing, and community management.
 
-These skills are designed for tech content creators, AI developers, and security professionals. Install them into your `~/.claude/skills/` directory and invoke them with `/skill-name` inside Claude Code.
+These skills use advanced Claude Code features including `context: fork` for isolated execution, `allowed-tools` for precise tool access, dynamic context injection (`!`command``), skill chaining, and structured output templates.
 
 ---
 
@@ -17,22 +17,39 @@ git clone https://github.com/andre-zilla/claude-skills.git ~/.claude/skills
 
 **Requirements:** [Claude Code CLI](https://claude.ai/claude-code) installed and configured.
 
+**Optional:** [Ghost Security plugin](https://github.com/anthropics/claude-code-plugins) for automated security scanning (`/secure-review` and `/stack-check` use it if available, but work without it).
+
 ---
 
 ## Skills Overview
 
-| Skill | Category | Description |
+| Skill | Category | Key Features |
 |---|---|---|
-| [`/content-plan`](#content-plan) | Content | Weekly content calendar generator |
-| [`/script-writer`](#script-writer) | Content | Video & blog script generator |
-| [`/seo-optimize`](#seo-optimize) | Content | YouTube & blog SEO optimizer |
-| [`/social-repurpose`](#social-repurpose) | Content | Multi-platform content repurposer |
-| [`/tool-review`](#tool-review) | Content | AI tool & tech product review generator |
-| [`/project-ideas`](#project-ideas) | Development | AI/tech project idea generator |
-| [`/app-scaffold`](#app-scaffold) | Development | Project scaffolding with latest versions |
-| [`/secure-review`](#secure-review) | Security | Comprehensive security audit |
-| [`/stack-check`](#stack-check) | Security | Dependency & version auditor |
-| [`/community-manager`](#community-manager) | Community | Bug bounty community management assistant |
+| [`/content-plan`](#content-plan) | Content | WebSearch for trends, exact table format, skill chaining, timezone-aware |
+| [`/script-writer`](#script-writer) | Content | 4 formats, word count targets, B-roll cues, fact verification |
+| [`/seo-optimize`](#seo-optimize) | Content | Before/after comparison, keyword research, competition analysis |
+| [`/social-repurpose`](#social-repurpose) | Content | 5 platforms, hard character limits, de-duplication, posting schedule |
+| [`/tool-review`](#tool-review) | Content | Forked context, rating scale anchors, competitor tables, privacy audit |
+| [`/project-ideas`](#project-ideas) | Development | Diversity requirements, similar project check, quick-start commands |
+| [`/app-scaffold`](#app-scaffold) | Development | Latest version verification, CI/CD, security defaults, post-build validation |
+| [`/secure-review`](#secure-review) | Security | Forked context, 3-layer audit, Ghost + manual, confidence levels |
+| [`/stack-check`](#stack-check) | Security | Forked context, health score, license audit, exact upgrade commands |
+| [`/community-manager`](#community-manager) | Community | 7 focus areas, competitor intel, templates, metrics dashboards |
+
+---
+
+## Advanced Features Used
+
+These skills leverage Claude Code's full capabilities:
+
+| Feature | Skills Using It | Purpose |
+|---|---|---|
+| `context: fork` | secure-review, stack-check, tool-review | Runs in isolated subagent — verbose output stays out of main context |
+| `allowed-tools` | ALL | Declares exactly which tools each skill needs |
+| `disable-model-invocation` | app-scaffold, secure-review | Prevents auto-triggering on side-effect-heavy skills |
+| Dynamic context `!`cmd`` | content-plan, app-scaffold, secure-review, stack-check, seo-optimize | Pre-fetches project data before Claude starts processing |
+| Skill chaining | ALL | Every skill suggests next skills to run in a pipeline |
+| Structured output | ALL | Consistent templates with tables, code blocks, and checklists |
 
 ---
 
@@ -40,34 +57,29 @@ git clone https://github.com/andre-zilla/claude-skills.git ~/.claude/skills
 
 ### `/content-plan`
 
-Generates a 7-day content calendar tailored for tech and AI content creators.
+Generates a 7-day content calendar with web-searched trending topics.
 
-**Usage:**
 ```
 /content-plan AI tools and workflows
-/content-plan Claude Code tutorials
+/content-plan Claude Code tutorials week of 3/1
 ```
 
-**What it produces:**
-- Daily content assignments across YouTube, Twitter/X, LinkedIn, Blog, TikTok/Reels, and Newsletter
-- SEO-friendly titles and attention-grabbing hooks
-- Key talking points (3-5 per post)
-- Calls to action and estimated production time
-- Optimal posting times per platform
-- Weekly theme summary tying all content together
+**What's included:**
+- Trending topic research via WebSearch (with source dates)
+- Calendar table with exact format (day, platform, type, title, production time)
+- Detailed breakdown per day: hook, key points, CTA, repurpose chain
+- Posting time recommendations by platform (ET timezone)
+- Weekly theme summary + quick win + hero content identification
+- Skill chain: suggests `/script-writer` → `/seo-optimize` → `/social-repurpose`
 
-**Rules it follows:**
-- Mixes platforms — never posts to the same platform 3 days in a row
-- Includes at least 1 quick-win post and 1 long-form deep dive per week
-- Prioritizes trending AI/tech topics
+**Handles:** No input (asks + suggests trending topics), too-broad topics (narrows with 3 angles), multiple topics (mixed calendar), weekend exclusions.
 
 ---
 
 ### `/script-writer`
 
-Creates ready-to-use scripts for multiple content formats.
+Creates ready-to-use scripts with word count targets and production cues.
 
-**Usage:**
 ```
 /script-writer Building an AI Agent youtube
 /script-writer Top 5 AI Tools 2026 short
@@ -75,89 +87,79 @@ Creates ready-to-use scripts for multiple content formats.
 /script-writer Claude Code Tips thread
 ```
 
-**Supported formats:**
-| Format | Output |
+| Format | Output Details |
 |---|---|
-| `youtube` (default) | 5-15 min video script with timestamps, B-roll cues, thumbnail ideas |
-| `short` | 30-60 sec TikTok/Reels/Shorts script with text overlay suggestions |
-| `blog` | 800-1500 word blog post with headline, H2 sections, meta description |
-| `thread` | 8-12 tweet Twitter/X thread with hook and CTA |
+| `youtube` | 5-15 min script (~150 words/min), timestamps, `[B-ROLL]`/`[SCREEN RECORDING]` cues, 3 thumbnail concepts, sponsor section |
+| `short` | 30-60 sec TikTok/Reels/Shorts with text overlay cues |
+| `blog` | 800-1,500 words with H2 structure, meta description, code snippet suggestions |
+| `thread` | 8-12 tweets, each under 280 chars, standalone-worthy, with pinned reply |
 
-**Includes:** `[B-ROLL]` and `[SCREEN RECORDING]` cues, SEO keywords, suggested timestamps, thumbnail concepts.
+**Voice:** Conversational, direct, energetic — never corporate. Includes example sentences showing target tone. Facts verified via WebSearch.
 
 ---
 
 ### `/seo-optimize`
 
-Optimizes content for YouTube search ranking and blog SEO.
+Optimizes content for search with before/after comparisons and competition analysis.
 
-**Usage:**
 ```
 /seo-optimize "Building an AI App with Claude" youtube
 /seo-optimize "Getting Started with Prompt Engineering" blog
 ```
 
-**YouTube optimization:**
-- 3 title variants (under 60 chars, front-loaded keywords, power words)
-- Optimized description with keyword placement
-- 15-20 tags (broad + specific + misspellings)
-- Thumbnail text suggestions and hashtags
-
-**Blog optimization:**
-- H1 title with primary keyword
-- Meta description (150-160 chars)
-- Clean URL slug
-- Header structure with keyword-rich H2/H3 suggestions
-- Schema markup recommendations
-
-**Both:** Primary keyword with volume estimate, secondary keywords, long-tail variations, trending angles, and competitor gap analysis.
+**What's included:**
+- Before/after title comparison with explanations
+- 3 optimized title variants (under 60 chars, keyword front-loaded)
+- Full description template with timestamps and links sections
+- 15-20 tags (exact match, long-tail, competitor names, misspellings)
+- Keyword analysis table (volume, competition, recommendation)
+- Content gap analysis (what top-ranking content misses)
+- Saturation check with color-coded assessment
+- Validation tool suggestions (TubeBuddy, vidIQ, Ahrefs)
 
 ---
 
 ### `/social-repurpose`
 
-Transforms one piece of long-form content into posts for 5 platforms.
+Transforms one piece of content into native posts for 5 platforms.
 
-**Usage:**
 ```
 /social-repurpose ./blog-post.md
 /social-repurpose [paste content directly]
 ```
 
-**Generates:**
-| Platform | Format |
-|---|---|
-| Twitter/X | 8-12 tweet thread with hook and CTA |
-| LinkedIn | Professional post with hook line, short paragraphs, hashtags |
-| Instagram/TikTok | Caption + 20-30 hashtags + carousel/visual ideas |
-| YouTube Shorts/TikTok | 30-60 sec script with text overlay suggestions |
-| Newsletter | 3 subject lines + preview text + 150-word summary |
+**Platforms with hard character limits enforced:**
 
-Each version feels native to its platform — not copy-pasted. Includes posting time suggestions and stagger schedule.
+| Platform | Limit | What You Get |
+|---|---|---|
+| Twitter/X | 280/tweet | 8-12 tweet thread + pinned reply |
+| LinkedIn | 3,000 chars | Hook-first post with professional tone |
+| Instagram | 2,200 chars | Caption + carousel concept + hashtags |
+| TikTok/Shorts | 60 sec | Script with text overlays |
+| Newsletter | ~500 words | 3 subject lines + preview text + body |
+
+**Key feature:** De-duplication rule — each platform leads with a DIFFERENT angle from the source material. Includes staggered posting schedule with dates and times.
 
 ---
 
 ### `/tool-review`
 
-Generates structured review outlines for AI tools and tech products.
+Researches AI tools and generates structured review outlines. Runs in a forked context to keep research output clean.
 
-**Usage:**
 ```
 /tool-review Cursor IDE
 /tool-review Claude Code
 /tool-review Midjourney v7
 ```
 
-**Produces:**
-- **Overview:** What it is, who it's for, category, pricing tiers
-- **Key Features:** Top 5-7 with standout differentiators
-- **Pros & Cons:** 3-5 each, specific and honest
-- **Hands-On Demo Ideas:** Scenarios to try on camera, workflows to test, "wow moments"
-- **Competitors:** Top 2-3 alternatives with comparison
-- **Verdict:** Rating/10, "Best for..." and "Skip if..." one-liners
-- **Video Talking Points:** 5-7 bullets + thumbnail concept + 3 title options
-
-Always uses web search to get the latest pricing, features, and updates.
+**What's included:**
+- Pricing table (verified via web search with date)
+- Feature ratings (Game-changer / Solid / Meh / Broken)
+- Competitor comparison table
+- Rating with defined scale anchors (9-10: exceptional, 7-8: strong, 5-6: situational, etc.)
+- Hands-on demo plan with wow-factor ratings
+- Video production kit (3 titles, thumbnail, talking points, demo sequence)
+- Data privacy assessment (storage, training, compliance, incidents)
 
 ---
 
@@ -165,55 +167,40 @@ Always uses web search to get the latest pricing, features, and updates.
 
 ### `/project-ideas`
 
-Generates buildable project ideas with content angles and monetization potential.
+Generates 5 buildable project ideas with diversity requirements.
 
-**Usage:**
 ```
 /project-ideas
 /project-ideas intermediate nextjs AI
-/project-ideas beginner python automation
+/project-ideas beginner python automation exclude: chatbots
 ```
 
-**Per idea (5 total):**
-- Catchy project name and one-liner
-- Full tech stack (latest versions, verified via web search)
-- 4-6 core features and required APIs/services
-- Difficulty level and build time estimate
-- **Content angle:** Video series potential, wow factor, teachable moments
-- **Monetization:** SaaS potential, open source with sponsors, product viability
+**Per idea:** Name, description, verified tech stack, features, APIs (with pricing), difficulty, build time, learning outcomes, content angle (episode count, wow factor), monetization potential, and **quick-start command** (`/app-scaffold [description]`).
 
-Always includes at least one weekend project (ship fast) and one ambitious project (long-form content series).
+**Diversity enforced:** At least 3 different stacks, 2 difficulty levels, 1 weekend project, 1 ambitious series project. Checks for similar existing projects via web search.
 
 ---
 
 ### `/app-scaffold`
 
-Scaffolds a complete project with the latest stable versions of everything.
+Scaffolds production-ready projects with verified latest versions. Manual-invoke only (`disable-model-invocation: true`) since it creates files and runs commands.
 
-**Usage:**
 ```
 /app-scaffold AI chatbot with Next.js and Supabase
 /app-scaffold SaaS dashboard with Stripe billing
 /app-scaffold CLI tool in Rust
 ```
 
-**Creates:**
+**What's created:**
 - Clean folder structure following framework conventions
-- `CLAUDE.md` — Project context for Claude Code
-- `README.md` — Setup instructions with version numbers
-- `package.json` (or equivalent) — Dependencies pinned to latest stable
-- `.gitignore` — Comprehensive for the stack
-- Base app code — Minimal working app with routing and example feature
-- Config files — ESLint, Prettier, TypeScript as appropriate
+- `CLAUDE.md` — Stack, scripts, conventions, architecture decisions
+- `README.md` — Setup instructions with pinned version numbers
+- `.github/workflows/ci.yml` — GitHub Actions for lint + test + build
+- `tests/example.test.ts` — At least one working test
+- `.env.example` — All env vars documented (no real secrets)
+- Security defaults: CORS, input validation (zod/joi/pydantic), CSP headers, auth boilerplate
 
-**Security defaults baked in:**
-- Environment variables for all secrets (`.env.example` included)
-- CORS configuration
-- Input validation setup
-- CSP headers for web apps
-- Auth boilerplate when applicable
-
-**Always verifies latest versions via web search** — never uses stale cached versions.
+**Post-scaffold validation:** Runs `install`, `build`, and `test` to verify the scaffold actually works before presenting it.
 
 ---
 
@@ -221,65 +208,50 @@ Scaffolds a complete project with the latest stable versions of everything.
 
 ### `/secure-review`
 
-Runs a comprehensive, layered security audit on your project.
+Comprehensive security audit running in forked context. Manual-invoke only.
 
-**Usage:**
 ```
 /secure-review
 /secure-review src/api/
 /secure-review auth-module
 ```
 
-**Three-layer approach:**
+**Three-layer audit:**
 
-| Layer | What It Does |
-|---|---|
-| **1. Automated Scans** | Runs Ghost Security scans: secrets detection, dependency CVEs, SAST code analysis |
-| **2. Manual Code Review** | OWASP Top 10 review: auth/authz, injection flaws, data protection, API security, configuration |
-| **3. Dependency Health** | Flags outdated, deprecated, and supply-chain-risk packages |
+| Layer | What It Does | Tools |
+|---|---|---|
+| Automated | Ghost Security: secrets, deps, SAST, combined report | Ghost plugin (graceful fallback if unavailable) |
+| Manual | Auth/authz, injection, data protection, API security, infra, client-side | Code analysis with line-number precision |
+| Dependencies | Outdated, deprecated, EOL, supply-chain risk | WebSearch + Ghost scan-deps |
 
-**Output format:**
-- **Executive Summary** — Overall risk level + top 3 immediate actions
-- **Detailed Findings** — Severity, OWASP category, file:line, description, impact, remediation with code examples
-- **Remediation Priority List** — Ordered checklist, highest priority first
+**Output includes:**
+- Executive summary with risk level and top 3 actions
+- Each finding: severity, confidence (Confirmed/Likely/Possible), OWASP category, CWE, exact code, working fix
+- Remediation checklist ordered by priority
+- Scan coverage summary table
 
-**Note:** Requires the [Ghost Security plugin](https://github.com/anthropics/claude-code-plugins) for automated scanning. Manual review works without it.
+**Checks git history** for committed `.env` files. Scales audit depth to project size.
 
 ---
 
 ### `/stack-check`
 
-Audits every dependency, framework, and runtime version in your project.
+Audits every dependency with a health score. Runs in forked context.
 
-**Usage:**
 ```
 /stack-check
 /stack-check ./my-app
 ```
 
-**Detects and audits:**
-- Node.js (package.json, lockfiles)
-- Python (requirements.txt, pyproject.toml, poetry.lock)
-- Go (go.mod, go.sum)
-- Ruby (Gemfile, Gemfile.lock)
-- Rust (Cargo.toml, Cargo.lock)
-- Docker (base images in Dockerfile/docker-compose)
-- Framework configs (next.config.js, vite.config.ts, etc.)
-- Runtime versions (Node.js, Python, Go, Rust themselves)
+**Detects:** Node.js, Python, Go, Ruby, Rust, Java/Kotlin, PHP, .NET, Docker base images, GitHub Actions, framework configs. Also checks runtime versions.
 
-**Classification for each package:**
-| Status | Meaning |
-|---|---|
-| Current | On latest stable |
-| Minor Behind | Patch or minor update available |
-| Major Behind | Major version behind — action needed |
-| Deprecated | Package is deprecated or abandoned |
-| EOL | End of life — no security patches |
-| Vulnerable | Has known CVEs |
+**For each package:**
+- Current version vs. latest stable (verified via web search with date)
+- Status: ✅ Current / 🔵 Minor / 🟠 Major / ⚠️ Deprecated / 🔴 EOL / 🚨 Vulnerable
+- **Exact upgrade command** (not "consider upgrading")
+- Breaking changes and migration notes for major updates
 
-**Produces:** Summary table, critical/recommended/optional update lists, and a migration guide with breaking changes and suggested upgrade order.
-
-**Always web searches** for latest versions — never relies on cached knowledge.
+**Health score:** 0-100 with clear scoring formula. **License audit** flags GPL/AGPL in commercial projects. **Upgrade order** ensures safe sequential updates.
 
 ---
 
@@ -287,30 +259,67 @@ Audits every dependency, framework, and runtime version in your project.
 
 ### `/community-manager`
 
-Comprehensive community management assistant built for the [0DIN.ai](https://0din.ai) GenAI bug bounty platform. Adaptable for any bug bounty or security researcher community.
+Comprehensive community management for the [0DIN.ai](https://0din.ai) GenAI bug bounty platform.
 
-**Usage:**
 ```
-/community-manager
-/community-manager blog ideas for March
-/community-manager plan a CTF event
-/community-manager re-engagement campaign for dormant researchers
-/community-manager monthly metrics report template
+/community-manager                                    # Weekly action plan
+/community-manager blog ideas for March               # Content ideas
+/community-manager plan a CTF event                   # Event planning
+/community-manager re-engagement campaign             # Engagement tactics
+/community-manager monthly metrics report template    # Reporting
+/community-manager what is HackerOne doing for community  # Competitor intel
 ```
 
 **7 focus areas:**
 
-| Focus Area | What It Generates |
+| Area | What It Generates |
 |---|---|
-| **Engagement Strategies** | Activation campaigns, retention plays, re-engagement sequences, referral programs, feedback loops |
-| **Blog & Content Ideas** | Researcher spotlights, vulnerability deep dives, how-to guides, program updates, beginner pathways, expert interviews |
-| **Community Activities** | CTF challenges, Hack-The-Model sprints, live hacking sessions, AMAs, workshops, bug bash weeks, mentor matching |
-| **Onboarding & Growth** | Signup-to-submission funnels, skill progression paths, university outreach, cross-pollination strategies |
-| **Recognition & Rewards** | Achievement ideas, researcher of the month, leaderboard campaigns, exclusive access, swag campaigns, career development |
-| **Communication** | Announcement templates, weekly digests, researcher outreach DMs, social cadence, Discord engagement, crisis playbooks |
-| **Metrics & Reporting** | Community health dashboard, engagement/pipeline/quality/retention KPIs, monthly report templates |
+| Engagement | Activation campaigns, retention plays, re-engagement sequences, referral programs |
+| Blog & Content | Researcher spotlights, vuln deep dives, how-tos, program updates, beginner pathways |
+| Activities & Events | CTFs, Hack-The-Model, live hacking, AMAs, workshops, bug bash, mentor matching |
+| Onboarding & Growth | Signup funnels, skill paths, university outreach, cross-pollination |
+| Recognition | Achievements, researcher of the month, leaderboard campaigns, exclusive access, swag |
+| Communication | Templates for Discord, X, LinkedIn, email — announcements, digests, outreach, crisis |
+| Metrics | Dashboard templates, KPIs, monthly/quarterly report frameworks |
 
-When invoked without a focus area, generates a **weekly community action plan** covering top priorities across all areas.
+**Includes:** Competitor intelligence via WebSearch (HackerOne, Bugcrowd, Immunefi, Intigriti). Every tactic includes implementation steps, effort level, expected impact, and success metrics.
+
+---
+
+## Skill Pipeline
+
+These skills are designed to chain together:
+
+```
+/project-ideas          → Pick what to build
+    ↓
+/app-scaffold           → Set up the project
+    ↓
+/stack-check            → Verify all versions current
+    ↓
+  [ Build the app ]
+    ↓
+/secure-review          → Audit before shipping
+    ↓
+/script-writer          → Create content about the build
+    ↓
+/seo-optimize           → Optimize for discovery
+    ↓
+/social-repurpose       → Distribute everywhere
+    ↓
+/content-plan           → Plan next week's content
+```
+
+For community management:
+```
+/community-manager      → Plan engagement activities
+    ↓
+/content-plan           → Schedule community content
+    ↓
+/script-writer          → Script event promos and recaps
+    ↓
+/social-repurpose       → Distribute across platforms
+```
 
 ---
 
@@ -321,52 +330,48 @@ When invoked without a focus area, generates a **weekly community action plan** 
 git clone https://github.com/andre-zilla/claude-skills.git ~/.claude/skills
 ```
 
-### Already Have Skills
-```bash
-# Back up existing skills
-cp -r ~/.claude/skills ~/.claude/skills-backup
-
-# Clone and merge
-git clone https://github.com/andre-zilla/claude-skills.git /tmp/claude-skills
-cp -r /tmp/claude-skills/*/ ~/.claude/skills/
-rm -rf /tmp/claude-skills
-```
-
 ### Sync Across Machines
 ```bash
-# On any machine after initial clone
-cd ~/.claude/skills
-git pull
+cd ~/.claude/skills && git pull
 ```
 
-### Verify Installation
-Open Claude Code and type `/` — you should see all skills in the autocomplete menu.
+### Verify
+Open Claude Code and type `/` — all skills should appear in autocomplete.
 
 ---
 
 ## Customization
 
-Each skill is a standalone `SKILL.md` file with YAML frontmatter. To customize:
+Each skill is a standalone `SKILL.md` with YAML frontmatter. Edit any skill and changes take effect immediately — no restart needed.
 
-1. Edit the `SKILL.md` in any skill directory
-2. Modify the instructions, rules, or output format
-3. Changes take effect immediately — no restart needed
+### Creating Your Own
 
-### Creating Your Own Skills
 ```bash
 mkdir ~/.claude/skills/my-skill
 ```
 
-Create `SKILL.md` with this structure:
 ```yaml
 ---
 name: my-skill
-description: What this skill does and when to use it.
-argument-hint: "[optional arguments]"
+description: What it does and when to use it
+argument-hint: "[args]"
+allowed-tools:
+  - WebSearch
+  - Read
 ---
 
-Your instructions for Claude here...
+Your instructions here...
 ```
+
+### Key Frontmatter Options
+
+| Field | Purpose | Example |
+|---|---|---|
+| `allowed-tools` | Which tools the skill can use | `[WebSearch, Bash, Read]` |
+| `context: fork` | Run in isolated subagent | For heavy/verbose skills |
+| `disable-model-invocation` | Manual-only (prevents auto-trigger) | For skills with side effects |
+| `argument-hint` | Shown in autocomplete | `"[topic] [format]"` |
+| `model` | Route to specific model | `sonnet`, `opus`, `haiku` |
 
 ---
 
