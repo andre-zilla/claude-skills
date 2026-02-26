@@ -1,6 +1,6 @@
 # Claude Code Custom Skills
 
-A production-grade collection of 12 custom [Claude Code](https://claude.ai/claude-code) skills for content creation, AI development, security auditing, defensive research, and community management.
+A production-grade collection of 13 custom [Claude Code](https://claude.ai/claude-code) skills for content creation, AI development, security auditing, defensive research, community management, and AI framework expertise.
 
 These skills use advanced Claude Code features including `context: fork` for isolated execution, `allowed-tools` for precise tool access, dynamic context injection (`!`command``), skill chaining, and structured output templates.
 
@@ -37,6 +37,7 @@ git clone https://github.com/andre-zilla/claude-skills.git ~/.claude/skills
 | [`/community-manager`](#community-manager) | Community | 7 focus areas, competitor intel, templates, metrics dashboards |
 | [`/defense-analyst`](#defense-analyst) | Security | macOS binary analysis, CVSS scoring, defensive tools, vuln reports |
 | [`/red-team-scaffold`](#red-team-scaffold) | Security | GenAI red team infra — exfil server, vulnerable MCP, sandbox |
+| [`/mastra-expert`](#mastra-expert) | Development | Mastra AI framework — agents, workflows, memory, RAG, MCP, voice, evals, deployment |
 
 ---
 
@@ -345,6 +346,37 @@ Comprehensive community management for the [0DIN.ai](https://0din.ai) GenAI bug 
 
 ---
 
+## AI Framework Skills
+
+### `/mastra-expert`
+
+Expert-level guidance for the Mastra TypeScript AI framework. Multi-file skill with 8 domain reference guides and 6 workflow templates.
+
+```
+/mastra-expert Create an agent that can search and summarize documents
+/mastra-expert Build a workflow with human approval steps
+/mastra-expert Set up a new Mastra project
+/mastra-expert Add semantic memory with vector search
+/mastra-expert Deploy to Vercel
+```
+
+**Domains covered (with dedicated reference files):**
+
+| Domain | File | Coverage |
+|---|---|---|
+| Agents | `Agents.md` | Agent class, networks, processors, guardrails, structured output |
+| Workflows | `WorkflowEngine.md` | createWorkflow, control flow, suspend/resume, snapshots |
+| Memory & RAG | `MemoryAndRag.md` | 4 memory types, 17+ vector DBs, chunking, reranking |
+| MCP & Tools | `McpAndTools.md` | MCPClient/Server, createTool, OAuth, resources |
+| Models | `ModelsAndProviders.md` | 2,436 models, 81 providers, fallbacks, dynamic routing |
+| Server | `ServerAndDeployment.md` | Hono server, 8 auth providers, deployment targets |
+| Voice | `VoiceAndStreaming.md` | 10+ voice providers, TTS/STT, real-time streaming |
+| Evals | `EvalsAndObservability.md` | createScorer, 20+ scorers, 12+ tracing exporters |
+
+**6 guided workflows:** SetupProject, CreateAgent, BuildWorkflow, ConfigureMemory, AddEvals, DeployProject — each with step-by-step instructions and code generation.
+
+---
+
 ## Skill Pipeline
 
 These skills are designed to chain together:
@@ -378,6 +410,19 @@ For community management:
 /script-writer          → Script event promos and recaps
     ↓
 /social-repurpose       → Distribute across platforms
+```
+
+For Mastra AI framework development:
+```
+/mastra-expert          → Build agents, workflows, RAG pipelines
+    ↓
+/stack-check            → Verify all Mastra package versions
+    ↓
+/secure-review          → Audit the application
+    ↓
+/script-writer          → Create content about the build
+    ↓
+/social-repurpose       → Distribute everywhere
 ```
 
 For defensive security research:
